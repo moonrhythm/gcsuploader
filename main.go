@@ -180,16 +180,23 @@ func (b *basicAuth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var ok bool
+	defer func() {
+		if !ok {
+			w.Header().Set("WWW-Authenticate", "Basic")
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		}
+	}()
+
 	user, password, ok := r.BasicAuth()
 	if !ok {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 	okUser := subtle.ConstantTimeCompare([]byte(b.User), []byte(user)) == 1
 	okPassword := subtle.ConstantTimeCompare([]byte(b.Password), []byte(password)) == 1
 
-	if !okUser || !okPassword {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	ok = okUser && okPassword
+	if !ok {
 		return
 	}
 
