@@ -7,9 +7,11 @@ import (
 	"html/template"
 	"io"
 	"log"
+	"mime"
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"sync"
 
@@ -141,7 +143,17 @@ func (h *uploader) handlePost(w http.ResponseWriter, r *http.Request) {
 	}
 	defer fp.Close()
 
-	fn := uuid.New().String()
+	ct := fh.Header.Get("Content-Type")
+
+	ext := filepath.Ext(fh.Filename)
+	if ext == "" {
+		exts, _ := mime.ExtensionsByType(ct)
+		if len(exts) > 0 {
+			ext = exts[0]
+		}
+	}
+
+	fn := uuid.New().String() + ext
 	obj := h.Bucket.Object(path.Join(h.BucketPath, fn))
 	objWriter := obj.NewWriter(r.Context())
 
@@ -153,7 +165,7 @@ func (h *uploader) handlePost(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	objWriter.CacheControl = "public, max-age=31536000, immutable"
-	objWriter.ContentType = fh.Header.Get("Content-Type")
+	objWriter.ContentType = ct
 	_, err = io.Copy(objWriter, fp)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
