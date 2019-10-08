@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/subtle"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
@@ -30,12 +31,21 @@ func main() {
 	baseURL := os.Getenv("BASE_URL")
 	authUser := os.Getenv("AUTH_USER")
 	authPassword := os.Getenv("AUTH_PASSWORD")
+	objectMetadataJSON := os.Getenv("OBJECT_METADATA") // json
 
 	if bucket == "" {
 		log.Fatal("BUCKET env required")
 	}
 	if baseURL == "" {
 		log.Fatal("BASE_URL env required")
+	}
+
+	var objectMetadata map[string]string
+	if len(objectMetadataJSON) > 0 {
+		err := json.Unmarshal([]byte(objectMetadataJSON), &objectMetadata)
+		if err != nil {
+			log.Fatalf("unmarshaling object metadata; %v", err)
+		}
 	}
 
 	ctx := context.Background()
@@ -46,9 +56,10 @@ func main() {
 
 	var h http.Handler
 	h = &uploader{
-		Bucket:     client.Bucket(bucket),
-		BucketPath: bucketPath,
-		BaseURL:    baseURL,
+		Bucket:         client.Bucket(bucket),
+		BucketPath:     bucketPath,
+		BaseURL:        baseURL,
+		ObjectMetadata: objectMetadata,
 	}
 	h = &basicAuth{
 		User:     authUser,
@@ -61,9 +72,10 @@ func main() {
 }
 
 type uploader struct {
-	Bucket     *storage.BucketHandle
-	BucketPath string
-	BaseURL    string
+	Bucket         *storage.BucketHandle
+	BucketPath     string
+	BaseURL        string
+	ObjectMetadata map[string]string
 
 	initOnce sync.Once
 	t        *template.Template
@@ -164,8 +176,16 @@ func (h *uploader) handlePost(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
+	if objWriter.Metadata == nil {
+		objWriter.Metadata = make(map[string]string)
+	}
+	for k, v := range h.ObjectMetadata {
+		objWriter.Metadata[k] = v
+	}
+
 	objWriter.CacheControl = "public, max-age=31536000, immutable"
 	objWriter.ContentType = ct
+
 	_, err = io.Copy(objWriter, fp)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
