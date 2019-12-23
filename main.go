@@ -18,6 +18,7 @@ import (
 
 	"cloud.google.com/go/storage"
 	"github.com/google/uuid"
+	"google.golang.org/api/option"
 )
 
 func main() {
@@ -32,6 +33,7 @@ func main() {
 	authUser := os.Getenv("AUTH_USER")
 	authPassword := os.Getenv("AUTH_PASSWORD")
 	objectMetadataJSON := os.Getenv("OBJECT_METADATA") // json
+	gcpServiceAccountJSON := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON") // json
 
 	if bucket == "" {
 		log.Fatal("BUCKET env required")
@@ -49,7 +51,11 @@ func main() {
 	}
 
 	ctx := context.Background()
-	client, err := storage.NewClient(ctx)
+	var opt []option.ClientOption
+	if gcpServiceAccountJSON != "" {
+		opt = append(opt, option.WithCredentialsJSON([]byte(gcpServiceAccountJSON)))
+	}
+	client, err := storage.NewClient(ctx, opt...)
 	if err != nil {
 		log.Fatal(err)
 	}
