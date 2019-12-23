@@ -1,4 +1,4 @@
-FROM gcr.io/moonrhythm-containers/golang:1.13.1-alpine as build
+FROM gcr.io/moonrhythm-containers/golang:1.13-alpine as build
 
 ENV CGO_ENABLED=0
 WORKDIR /workspace
