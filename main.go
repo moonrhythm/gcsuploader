@@ -32,7 +32,7 @@ func main() {
 	baseURL := os.Getenv("BASE_URL")
 	authUser := os.Getenv("AUTH_USER")
 	authPassword := os.Getenv("AUTH_PASSWORD")
-	objectMetadataJSON := os.Getenv("OBJECT_METADATA") // json
+	objectMetadataJSON := os.Getenv("OBJECT_METADATA")                        // json
 	gcpServiceAccountJSON := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON") // json
 
 	if bucket == "" {
@@ -115,6 +115,7 @@ func (h *uploader) init() {
 		new Dropzone("form", {
 			url: '/',
 			parallelUploads: 5,
+			maxFilesize: 10240,
 			success (file, responseText) {
 				file.previewTemplate.addEventListener('click', () => {
 					open(responseText, '_blank')
