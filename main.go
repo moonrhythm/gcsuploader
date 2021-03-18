@@ -95,9 +95,9 @@ func (h *uploader) init() {
 	// language=HTML
 	h.t = template.Must(template.New("").Parse(`<!doctype html>
 <title>GCS Uploader</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dropzone@5.5.1/dist/min/dropzone.min.css">
-<script src="https://cdn.jsdelivr.net/npm/dropzone@5.5.1/dist/min/dropzone.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dropzone@5.8.1/dist/min/dropzone.min.css">
+<script src="https://cdn.jsdelivr.net/npm/dropzone@5.8.1/dist/min/dropzone.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js" defer></script>
 <style>
 	form {
 		margin: 16px;

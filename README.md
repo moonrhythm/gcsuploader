@@ -3,7 +3,7 @@
 ## Deployment
 
 ```sh
-gcloud beta run deploy gcsuploader \
+gcloud run deploy gcsuploader \
   --async \
   --platform=managed \
   --region=asia-northeast1 \
@@ -11,7 +11,7 @@ gcloud beta run deploy gcsuploader \
   --allow-unauthenticated \
   --timeout=300 \
   --memory=128Mi \
-  --image=gcr.io/moonrhythm-containers/gcsuploader:v0.1.1 \
+  --image=gcr.io/moonrhythm-containers/gcsuploader \
   --set-env-vars=BUCKET=BUCKET_NAME,BASE_URL=https://example.com \
   --service-account=SERVICE_ACCOUNT
 ```
