@@ -1,3 +1,4 @@
+COMMIT_SHA=$(shell git rev-parse HEAD)
 IMAGE=gcr.io/moonrhythm-containers/gcsuploader
 
 build:
