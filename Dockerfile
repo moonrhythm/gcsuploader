@@ -1,16 +1,16 @@
-FROM golang:1.16.2 as build
+FROM golang:1.20.1
 
-ENV GOOS=linux
-ENV GOARCH=amd64
 ENV CGO_ENABLED=0
 WORKDIR /workspace
 ADD go.mod go.sum ./
 RUN go mod download
 ADD . .
-RUN go build -o gcsuploader -ldflags '-w -s' .
+RUN go build -o .build/gcsuploader -ldflags "-w -s" .
 
-FROM gcr.io/moonrhythm-containers/go-scratch
+FROM gcr.io/distroless/static
 
-COPY --from=build /workspace/gcsuploader /gcsuploader
+WORKDIR /app
 
-ENTRYPOINT ["/gcsuploader"]
+COPY --from=0 /workspace/.build/* ./
+
+ENTRYPOINT ["/app/gcsuploader"]
